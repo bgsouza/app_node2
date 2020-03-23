@@ -10,28 +10,30 @@ var express = require('express'),
 app.listen(port);
 
 let redisStatus = null
-let mysqlStatus = null
+let mysqlStatus = false
 
 // Teste Mysql
-const clientMysql = Mysql.createConnection({
-    host: 'localhost',
-    user: 'dev',
-    password: 'dev',
-    database: 'test',
-    port: 3306
+const clientMysql = Mysql.createPool({
+    connectionLimit : 10,
+    host: 'db',
+    user: 'root',
+    password: 123456,
+    connectTimeout: 10000 
 });
-clientMysql.connect();
-clientMysql.on('error', (error) => {mysqlStatus = false})
-clientMysql.on('connect',()=>{mysqlStatus = true;})
 
 
 // Teste Redis
-const clientRedis = Redis.createClient(6379, '127.0.0.1')
+const clientRedis = Redis.createClient(6379, 'redis')
 clientRedis.on('error', (error) => {redisStatus = false})
 clientRedis.on('connect',()=>{redisStatus = true;})
 
 
 app.get('/api/v1/healthcheck', function(req, res) {
+    clientMysql.query('SELECT 1 + 1 AS solution', function (error, results, fields) {
+        if (error)  console.error('error connecting: ' + error.stack);
+        mysqlStatus = true;
+      });
+
     res.send({
         "status": {
             "redis": redisStatus,
