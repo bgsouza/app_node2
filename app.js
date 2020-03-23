@@ -14,7 +14,7 @@ let mysqlStatus = false
 
 // Teste Mysql
 const clientMysql = Mysql.createPool({
-    connectionLimit : 10,
+    connectionLimit : 20,
     host: 'db',
     user: 'root',
     password: 123456,
